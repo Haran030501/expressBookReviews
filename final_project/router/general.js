@@ -33,7 +33,6 @@ function getBooks() {
     });
 }
 
-// Get the book list available in the shop
 public_users.get('/', function (req, res) {
     getBooks().then((books) => res.send(JSON.stringify(books)));
 });
