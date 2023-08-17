@@ -33,6 +33,11 @@ function getBooks() {
     });
 }
 
+// Get the book list available in the shop
+public_users.get('/', function (req, res) {
+    getBooks().then((books) => res.send(JSON.stringify(books)));
+});
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   const ISBN = req.params.isbn;
@@ -44,6 +49,26 @@ public_users.get('/isbn/:isbn',function (req, res) {
   }
 //   return res.status(300).json({message: "Yet to be implemented"});
  });
+
+ function getISBN(ISBN) {
+    return new Promise((resolve, reject) => {
+        const isbn = parseInt(ISBN)
+        if (books[isbn]){
+            resolve(books[isbn]);
+        }
+        else {
+            reject({status:404, message:`ISBN ${ISBN} not found`});
+        }
+    });
+}
+
+public_users.get('/isbn/:isbn', function (req, res) {
+    getISBN(req.params.isbn)
+    .then(
+        result => res.send(result),
+        error => res.status(error.status).json({message: error.message})
+    );
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
@@ -58,6 +83,15 @@ public_users.get('/author/:author',function (req, res) {
 //   return res.status(300).json({message: "Yet to be implemented"});
 });
 
+public_users.get('/author/:author',function (req, res) {
+    const author = req.params.author;
+    getBooks()
+    .then((ISBN) => Object.values(ISBN))
+    .then((books) => books.filter((book) => book.author === author))
+    .then((filteredBooks) => res.send(filteredBooks));
+  //   return res.status(300).json({message: "Yet to be implemented"});
+  });
+
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
   const title = req.params.title;
@@ -68,6 +102,15 @@ public_users.get('/title/:title',function (req, res) {
   }
 //   return res.status(300).json({message: "Yet to be implemented"});
 });
+
+public_users.get('/title/:title',function (req, res) {
+    const title = req.params.title;
+    getBooks()
+    .then((ISBN) => Object.values(ISBN))
+    .then((books) => books.filter((book) => book.title === title))
+    .then((filteredBooks) => res.send(filteredBooks));
+  //   return res.status(300).json({message: "Yet to be implemented"});
+  });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
